@@ -1,0 +1,321 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using EstabraqTourismAPI.Services;
+using EstabraqTourismAPI.DTOs.Content;
+using EstabraqTourismAPI.DTOs.Common;
+
+namespace EstabraqTourismAPI.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ContentController : ControllerBase
+{
+    private readonly IContentService _contentService;
+    private readonly ILogger<ContentController> _logger;
+
+    public ContentController(IContentService contentService, ILogger<ContentController> logger)
+    {
+        _contentService = contentService;
+        _logger = logger;
+    }
+
+    /// <summary>
+    /// Get hero section content (Public)
+    /// </summary>
+    /// <returns>Hero section information</returns>
+    [HttpGet("hero")]
+    [ProducesResponseType(typeof(ApiResponse<HeroSectionDto>), 200)]
+    public async Task<ActionResult<ApiResponse<HeroSectionDto>>> GetHeroSection()
+    {
+        try
+        {
+            var result = await _contentService.GetHeroSectionAsync();
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetHeroSection endpoint");
+            return StatusCode(500, ApiResponse<HeroSectionDto>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Update hero section content (Admin only)
+    /// </summary>
+    /// <param name="request">Updated hero section data</param>
+    /// <returns>Updated hero section information</returns>
+    [HttpPut("hero")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<HeroSectionDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<HeroSectionDto>), 400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    public async Task<ActionResult<ApiResponse<HeroSectionDto>>> UpdateHeroSection([FromBody] UpdateHeroSectionRequestDto request)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+                
+                return BadRequest(ApiResponse<HeroSectionDto>.FailureResult(
+                    "Validation failed", errors));
+            }
+
+            var result = await _contentService.UpdateHeroSectionAsync(request);
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in UpdateHeroSection endpoint");
+            return StatusCode(500, ApiResponse<HeroSectionDto>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Get site statistics (Public)
+    /// </summary>
+    /// <returns>Site statistics</returns>
+    [HttpGet("stats")]
+    [ProducesResponseType(typeof(ApiResponse<SiteStatsDto>), 200)]
+    public async Task<ActionResult<ApiResponse<SiteStatsDto>>> GetSiteStats()
+    {
+        try
+        {
+            var result = await _contentService.GetSiteStatsAsync();
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetSiteStats endpoint");
+            return StatusCode(500, ApiResponse<SiteStatsDto>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Update site statistics (Admin only)
+    /// </summary>
+    /// <param name="request">Updated site statistics</param>
+    /// <returns>Updated site statistics</returns>
+    [HttpPut("stats")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<SiteStatsDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<SiteStatsDto>), 400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    public async Task<ActionResult<ApiResponse<SiteStatsDto>>> UpdateSiteStats([FromBody] UpdateSiteStatsRequestDto request)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+                
+                return BadRequest(ApiResponse<SiteStatsDto>.FailureResult(
+                    "Validation failed", errors));
+            }
+
+            var result = await _contentService.UpdateSiteStatsAsync(request);
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in UpdateSiteStats endpoint");
+            return StatusCode(500, ApiResponse<SiteStatsDto>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Refresh automatic site statistics (Admin only)
+    /// </summary>
+    /// <returns>Updated site statistics</returns>
+    [HttpPost("stats/refresh")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<SiteStatsDto>), 200)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    public async Task<ActionResult<ApiResponse<SiteStatsDto>>> RefreshSiteStats()
+    {
+        try
+        {
+            var result = await _contentService.RefreshSiteStatsAsync();
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in RefreshSiteStats endpoint");
+            return StatusCode(500, ApiResponse<SiteStatsDto>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Get dashboard summary (Admin only)
+    /// </summary>
+    /// <returns>Dashboard summary data</returns>
+    [HttpGet("dashboard-summary")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<DashboardSummaryDto>), 200)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    public async Task<ActionResult<ApiResponse<DashboardSummaryDto>>> GetDashboardSummary()
+    {
+        try
+        {
+            var result = await _contentService.GetDashboardSummaryAsync();
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetDashboardSummary endpoint");
+            return StatusCode(500, ApiResponse<DashboardSummaryDto>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Get recent activity (Admin only)
+    /// </summary>
+    /// <param name="count">Number of recent activities to return</param>
+    /// <returns>List of recent activities</returns>
+    [HttpGet("recent-activity")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<List<RecentActivityDto>>), 200)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    public async Task<ActionResult<ApiResponse<List<RecentActivityDto>>>> GetRecentActivity([FromQuery] int count = 10)
+    {
+        try
+        {
+            var result = await _contentService.GetRecentActivityAsync(count);
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetRecentActivity endpoint");
+            return StatusCode(500, ApiResponse<List<RecentActivityDto>>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Get system health check (Admin only)
+    /// </summary>
+    /// <returns>System health information</returns>
+    [HttpGet("health")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<SystemHealthDto>), 200)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    public async Task<ActionResult<ApiResponse<SystemHealthDto>>> GetSystemHealth()
+    {
+        try
+        {
+            var result = await _contentService.GetSystemHealthAsync();
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetSystemHealth endpoint");
+            return StatusCode(500, ApiResponse<SystemHealthDto>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Search content (Public)
+    /// </summary>
+    /// <param name="request">Search parameters</param>
+    /// <returns>Search results</returns>
+    [HttpGet("search")]
+    [ProducesResponseType(typeof(ApiResponse<SearchResultDto>), 200)]
+    public async Task<ActionResult<ApiResponse<SearchResultDto>>> SearchContent([FromQuery] SearchRequestDto request)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+                
+                return BadRequest(ApiResponse<SearchResultDto>.FailureResult(
+                    "Validation failed", errors));
+            }
+
+            var result = await _contentService.SearchContentAsync(request);
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in SearchContent endpoint");
+            return StatusCode(500, ApiResponse<SearchResultDto>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+}

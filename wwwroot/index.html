@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estabraq Tourism API</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            direction: rtl;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+        .logo {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            font-size: 1.5em;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        .api-info {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+        .btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .status {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .endpoints {
+            text-align: right;
+            background: rgba(0,0,0,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .endpoints h3 {
+            color: #FFD700;
+            margin-bottom: 15px;
+        }
+        .endpoints ul {
+            list-style: none;
+            padding: 0;
+        }
+        .endpoints li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .endpoints a {
+            color: #87CEEB;
+            text-decoration: none;
+        }
+        .endpoints a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🏛️ استبرق للسياحة</div>
+        <div class="subtitle">API للسياحة والسفر</div>
+        
+        <div class="status">
+            ✅ API يعمل بنجاح في وضع الإنتاج
+        </div>
+
+        <div class="api-info">
+            <h2>🚀 مرحباً بك في Estabraq Tourism API</h2>
+            <p>واجهة برمجة التطبيقات الشاملة لإدارة الرحلات السياحية والحجوزات</p>
+            
+            <a href="/swagger" class="btn">📚 توثيق API (Swagger)</a>
+            <a href="/api" class="btn">ℹ️ معلومات API</a>
+            <a href="/health" class="btn">🔍 فحص النظام</a>
+        </div>
+
+        <div class="endpoints">
+            <h3>🔗 نقاط النهاية الرئيسية:</h3>
+            <ul>
+                <li><strong>التوثيق:</strong> <a href="/swagger">/swagger</a></li>
+                <li><strong>المصادقة:</strong> <a href="/api/auth">/api/auth</a></li>
+                <li><strong>الفئات:</strong> <a href="/api/categories">/api/categories</a></li>
+                <li><strong>الرحلات:</strong> <a href="/api/trips">/api/trips</a></li>
+                <li><strong>الحجوزات:</strong> <a href="/api/bookings">/api/bookings</a></li>
+                <li><strong>الرسائل:</strong> <a href="/api/contact">/api/contact</a></li>
+            </ul>
+        </div>
+
+        <div class="api-info">
+            <h3>🔐 بيانات تجريبية للاختبار:</h3>
+            <p><strong>المدير:</strong> admin@estabraqtourism.com / Admin@123</p>
+            <p><strong>مستخدم:</strong> ahmed.mohamed@example.com / Test@123</p>
+        </div>
+
+        <div class="api-info">
+            <p><small>© 2025 Estabraq Tourism API - Version 1.0.0</small></p>
+        </div>
+    </div>
+
+    <script>
+        // Auto redirect to swagger after 5 seconds
+        setTimeout(() => {
+            document.body.style.opacity = '0.7';
+            setTimeout(() => {
+                window.location.href = '/swagger';
+            }, 1000);
+        }, 5000);
+    </script>
+</body>
+</html>

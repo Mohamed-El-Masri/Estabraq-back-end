@@ -1,0 +1,6 @@
+@EstabraqTourismAPI_HostAddress = http://localhost:5159
+
+GET {{EstabraqTourismAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

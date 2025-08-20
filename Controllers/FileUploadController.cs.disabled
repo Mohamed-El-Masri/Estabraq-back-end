@@ -1,0 +1,363 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using EstabraqTourismAPI.Services;
+using EstabraqTourismAPI.DTOs.Common;
+
+namespace EstabraqTourismAPI.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class FileUploadController : ControllerBase
+{
+    private readonly IFileUploadService _fileUploadService;
+    private readonly ILogger<FileUploadController> _logger;
+
+    public FileUploadController(IFileUploadService fileUploadService, ILogger<FileUploadController> logger)
+    {
+        _fileUploadService = fileUploadService;
+        _logger = logger;
+    }
+
+    /// <summary>
+    /// Upload single image
+    /// </summary>
+    /// <param name="file">Image file</param>
+    /// <param name="folder">Upload folder (optional)</param>
+    /// <returns>Uploaded file information</returns>
+    [HttpPost("image")]
+    [ProducesResponseType(typeof(ApiResponse<FileUploadResultDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<FileUploadResultDto>), 400)]
+    [ProducesResponseType(401)]
+    public async Task<ActionResult<ApiResponse<FileUploadResultDto>>> UploadImage(
+        IFormFile file, 
+        [FromQuery] string folder = "images")
+    {
+        try
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(ApiResponse<FileUploadResultDto>.FailureResult(
+                    "No file provided"));
+            }
+
+            var result = await _fileUploadService.UploadImageAsync(file, folder);
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in UploadImage endpoint");
+            return StatusCode(500, ApiResponse<FileUploadResultDto>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Upload multiple images
+    /// </summary>
+    /// <param name="files">Image files</param>
+    /// <param name="folder">Upload folder (optional)</param>
+    /// <returns>List of uploaded file information</returns>
+    [HttpPost("images")]
+    [ProducesResponseType(typeof(ApiResponse<List<FileUploadResultDto>>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<List<FileUploadResultDto>>), 400)]
+    [ProducesResponseType(401)]
+    public async Task<ActionResult<ApiResponse<List<FileUploadResultDto>>>> UploadImages(
+        List<IFormFile> files, 
+        [FromQuery] string folder = "images")
+    {
+        try
+        {
+            if (files == null || !files.Any() || files.All(f => f == null || f.Length == 0))
+            {
+                return BadRequest(ApiResponse<List<FileUploadResultDto>>.FailureResult(
+                    "No files provided"));
+            }
+
+            var result = await _fileUploadService.UploadImagesAsync(files, folder);
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in UploadImages endpoint");
+            return StatusCode(500, ApiResponse<List<FileUploadResultDto>>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Upload trip images with optimization
+    /// </summary>
+    /// <param name="files">Image files</param>
+    /// <param name="tripId">Trip ID</param>
+    /// <returns>List of uploaded trip image information</returns>
+    [HttpPost("trip-images")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<List<FileUploadResultDto>>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<List<FileUploadResultDto>>), 400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    public async Task<ActionResult<ApiResponse<List<FileUploadResultDto>>>> UploadTripImages(
+        List<IFormFile> files, 
+        [FromQuery] int tripId)
+    {
+        try
+        {
+            if (files == null || !files.Any() || files.All(f => f == null || f.Length == 0))
+            {
+                return BadRequest(ApiResponse<List<FileUploadResultDto>>.FailureResult(
+                    "No files provided"));
+            }
+
+            if (tripId <= 0)
+            {
+                return BadRequest(ApiResponse<List<FileUploadResultDto>>.FailureResult(
+                    "Valid trip ID is required"));
+            }
+
+            var result = await _fileUploadService.UploadTripImagesAsync(files, tripId);
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in UploadTripImages endpoint");
+            return StatusCode(500, ApiResponse<List<FileUploadResultDto>>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Upload profile picture
+    /// </summary>
+    /// <param name="file">Profile image file</param>
+    /// <returns>Uploaded profile picture information</returns>
+    [HttpPost("profile-picture")]
+    [ProducesResponseType(typeof(ApiResponse<FileUploadResultDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<FileUploadResultDto>), 400)]
+    [ProducesResponseType(401)]
+    public async Task<ActionResult<ApiResponse<FileUploadResultDto>>> UploadProfilePicture(IFormFile file)
+    {
+        try
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(ApiResponse<FileUploadResultDto>.FailureResult(
+                    "No file provided"));
+            }
+
+            var result = await _fileUploadService.UploadProfilePictureAsync(file);
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in UploadProfilePicture endpoint");
+            return StatusCode(500, ApiResponse<FileUploadResultDto>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Upload category image
+    /// </summary>
+    /// <param name="file">Category image file</param>
+    /// <param name="categoryId">Category ID</param>
+    /// <returns>Uploaded category image information</returns>
+    [HttpPost("category-image")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<FileUploadResultDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<FileUploadResultDto>), 400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    public async Task<ActionResult<ApiResponse<FileUploadResultDto>>> UploadCategoryImage(
+        IFormFile file, 
+        [FromQuery] int categoryId)
+    {
+        try
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(ApiResponse<FileUploadResultDto>.FailureResult(
+                    "No file provided"));
+            }
+
+            if (categoryId <= 0)
+            {
+                return BadRequest(ApiResponse<FileUploadResultDto>.FailureResult(
+                    "Valid category ID is required"));
+            }
+
+            var result = await _fileUploadService.UploadCategoryImageAsync(file, categoryId);
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in UploadCategoryImage endpoint");
+            return StatusCode(500, ApiResponse<FileUploadResultDto>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Delete uploaded file
+    /// </summary>
+    /// <param name="filePath">File path to delete</param>
+    /// <returns>Success message</returns>
+    [HttpDelete]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<string>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<string>), 400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    public async Task<ActionResult<ApiResponse<string>>> DeleteFile([FromQuery] string filePath)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                return BadRequest(ApiResponse<string>.FailureResult(
+                    "File path is required"));
+            }
+
+            var result = await _fileUploadService.DeleteFileAsync(filePath);
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in DeleteFile endpoint");
+            return StatusCode(500, ApiResponse<string>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Get file information
+    /// </summary>
+    /// <param name="filePath">File path</param>
+    /// <returns>File information</returns>
+    [HttpGet("info")]
+    [ProducesResponseType(typeof(ApiResponse<FileInfoDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<FileInfoDto>), 404)]
+    [ProducesResponseType(401)]
+    public async Task<ActionResult<ApiResponse<FileInfoDto>>> GetFileInfo([FromQuery] string filePath)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                return BadRequest(ApiResponse<FileInfoDto>.FailureResult(
+                    "File path is required"));
+            }
+
+            var result = await _fileUploadService.GetFileInfoAsync(filePath);
+            
+            if (!result.Success)
+            {
+                return NotFound(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetFileInfo endpoint");
+            return StatusCode(500, ApiResponse<FileInfoDto>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Get upload statistics (Admin only)
+    /// </summary>
+    /// <returns>Upload statistics</returns>
+    [HttpGet("statistics")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<UploadStatisticsDto>), 200)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    public async Task<ActionResult<ApiResponse<UploadStatisticsDto>>> GetUploadStatistics()
+    {
+        try
+        {
+            var result = await _fileUploadService.GetUploadStatisticsAsync();
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetUploadStatistics endpoint");
+            return StatusCode(500, ApiResponse<UploadStatisticsDto>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+
+    /// <summary>
+    /// Clean unused files (Admin only)
+    /// </summary>
+    /// <returns>Cleanup results</returns>
+    [HttpPost("cleanup")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<FileCleanupResultDto>), 200)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    public async Task<ActionResult<ApiResponse<FileCleanupResultDto>>> CleanupUnusedFiles()
+    {
+        try
+        {
+            var result = await _fileUploadService.CleanupUnusedFilesAsync();
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in CleanupUnusedFiles endpoint");
+            return StatusCode(500, ApiResponse<FileCleanupResultDto>.FailureResult(
+                "An error occurred while processing your request"));
+        }
+    }
+}
